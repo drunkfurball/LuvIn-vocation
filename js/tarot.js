@@ -502,40 +502,72 @@ let tarotDeck = {
             };
         };
         this.shuffle();
-        for (k = 0; k <3; k++) { // temporary layout generator - we'll fix it in post!
+        /**for (k = 0; k <3; k++) { // temporary layout generator - we'll fix it in post!
             this.layout.push(this.deal());
             this.layout[k].x = ((k+1) * 120);
-        }
+        }**/
     },
 
-    drawLayout: function(ctx, x, y) {
+    place: function(e) {
+        let msEvt = e;
         
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        let layout_key = ["Past", "Present", "Future"];
+        if (this.layout.length < this.dealt.length) {
+            this.layout.push(this.deal());
+        }
+        
+        if (msEvt.shiftKey) {
+            this.layout[this.layout.length - 1].rotated = true;
+            this.layout[this.layout.length - 1].x = msEvt.offsetX - 60;
+            this.layout[this.layout.length - 1].y = msEvt.offsetY - 35;
+        }
+        else {
+            this.layout[this.layout.length - 1].rotated = false;
+            this.layout[this.layout.length - 1].x = msEvt.offsetX - 35;
+            this.layout[this.layout.length - 1].y = msEvt.offsetY - 60;
+        }
+        
+    },
+
+    place: function(e) {
+        let tcEvt = e;
+        
+        if (this.layout.length < this.dealt.length) {
+            this.layout.push(this.deal());
+        }
+        
+        if (tcEvt.touches.length > 1) {
+            this.layout[this.layout.length - 1].rotated = true;
+            this.layout[this.layout.length - 1].x = tcEvt.offsetX - 60;
+            this.layout[this.layout.length - 1].y = tcEvt.offsetY - 35;
+        }
+        else {
+            this.layout[this.layout.length - 1].rotated = false;
+            this.layout[this.layout.length - 1].x = tcEvt.offsetX - 35;
+            this.layout[this.layout.length - 1].y = tcEvt.offsetY - 60;
+        }
+        
+    },
+
+    drawLayout: function(ctx) {
         for (l=0; l < this.layout.length; l++) {
-            ctx.font = "" + ((this.layout[l].image[0].width/2) / 2) + "px Arial";
-            ctx.fillText(layout_key[l], this.layout[l].x + x + (this.layout[l].image[0].width/2), this.layout[l].y - 20 + y);
-            this.drawCard(ctx, x, y, this.layout[l]);
-            ctx.font = "" + ((this.layout[l].image[0].width/2) / 3.5) + "px Arial";
-            ctx.fillText(this.layout[l].name, this.layout[l].x + x + (this.layout[l].image[0].width/2), this.layout[l].y + this.layout[l].image[0].height + 20 + y);
+            this.drawCard(ctx, this.layout[l]);
         }
     },
 
-    drawCard: function(ctx, x, y, card) {
+    drawCard: function(ctx, card) {
         if (card.inverted) {
             if (card.rotated) {
-                ctx.drawImage(card.image[3], card.x + x, card.y + y);
+                ctx.drawImage(card.image[3], card.x, card.y);
             }
             else {
-                ctx.drawImage(card.image[2], card.x + x, card.y + y);
+                ctx.drawImage(card.image[2], card.x, card.y);
             }
         }
         else if (card.rotated) {
-            ctx.drawImage(card.image[1], card.x + x, card.y + y);
+            ctx.drawImage(card.image[1], card.x, card.y);
         }
         else {
-            ctx.drawImage(card.image[0], card.x + x, card.y + y);
+            ctx.drawImage(card.image[0], card.x, card.y);
         }
     }
 };
