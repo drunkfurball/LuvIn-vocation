@@ -528,7 +528,7 @@ let tarotDeck = {
         
     },
 
-    place: function(e) {
+    placeTap: function(e) {
         let tcEvt = e;
         
         if (this.layout.length < this.dealt.length) {
