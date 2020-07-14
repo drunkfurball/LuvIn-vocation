@@ -6,7 +6,6 @@ const DEFAULT_BACKGROUND = "#000000";
 const DEFAULT_TEXT = "#FFFFFF"
 let LOGGING = true; //Turns on console feedback for input debugging
 
-
 function reloadCanvas(width, height, name) {
 
     //delete any remnants of canvas elements past

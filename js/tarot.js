@@ -510,22 +510,45 @@ let tarotDeck = {
 
     place: function(e) {
         let msEvt = e;
+        let cutter = [];
+        //tap a card 
+        //test if msEvt.offsetX or offsetY are inside any layout cards
+        function distBetweenPoints(x1, y1, x2, y2) {
+
+            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         
-        if (this.layout.length < this.dealt.length) {
+        }
+
+        if (this.layout.length > 0 && (msEvt.altKey || msEvt.ctrlKey)) {
+
+            for (i = this.layout.length; i > 0; i--)  {
+                if (distBetweenPoints(this.layout[i-1].x, this.layout[i-1].y, msEvt.offsetX - 60, msEvt.offsetY - 35) < 60) {
+                    cutter.push(i-1);
+                }
+            }
+
+            if (cutter.length > 0 && msEvt.altKey) {
+                // remover the selected card from the layout
+                this.layout.splice(cutter[0], 1);
+            }
+
+        }
+
+        if (this.layout.length < this.dealt.length && !msEvt.altKey) {
             this.layout.push(this.deal());
-        }
         
-        if (msEvt.shiftKey) {
-            this.layout[this.layout.length - 1].rotated = true;
-            this.layout[this.layout.length - 1].x = msEvt.offsetX - 60;
-            this.layout[this.layout.length - 1].y = msEvt.offsetY - 35;
-        }
-        else {
-            this.layout[this.layout.length - 1].rotated = false;
-            this.layout[this.layout.length - 1].x = msEvt.offsetX - 35;
-            this.layout[this.layout.length - 1].y = msEvt.offsetY - 60;
-        }
         
+            if (msEvt.shiftKey) {
+                this.layout[this.layout.length - 1].rotated = true;
+                this.layout[this.layout.length - 1].x = msEvt.offsetX - 60;
+                this.layout[this.layout.length - 1].y = msEvt.offsetY - 35;
+            }
+            else {
+                this.layout[this.layout.length - 1].rotated = false;
+                this.layout[this.layout.length - 1].x = msEvt.offsetX - 35;
+                this.layout[this.layout.length - 1].y = msEvt.offsetY - 60;
+            }
+        }
     },
 
     placeTap: function(e) {
