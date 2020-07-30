@@ -1,5 +1,4 @@
 let tarotDeck = {
-    dealt: [],
     layout: [],
     cards: [
         {
@@ -473,18 +472,17 @@ let tarotDeck = {
     ],
 
     shuffle: function() {
-        this.dealt = [];
-        for (i = 0; i < 78; i++) {
-            this.dealt.push(false);
+        for (i = 0; i < this.cards.length; i++) {
+            this.cards[i].dealt = false;
         };
     },
 
     deal: function() {
-        num = Math.floor(Math.random() * 78);
-        while (this.dealt[num]) {
-            num = Math.floor(Math.random() * 78);
+        num = Math.floor(Math.random() * this.cards.length);
+        while (this.cards[num].dealt) {
+            num = Math.floor(Math.random() * this.cards.length);
         };
-        this.dealt[num] = true;
+        this.cards[num].dealt = true;
         let card = this.cards[num];
         card.inverted = (Math.random()>0.5?true:false);
         card.rotated = false;
@@ -500,6 +498,7 @@ let tarotDeck = {
                 this.cards[x].image[s] = new Image();
                 this.cards[x].image[s].src = this.cards[x].src[s];
             };
+            this.cards[x].dealt = false;
         };
         this.shuffle();
         /**for (k = 0; k <3; k++) { // temporary layout generator - we'll fix it in post!
@@ -522,53 +521,72 @@ let tarotDeck = {
         if (this.layout.length > 0 && (msEvt.altKey || msEvt.ctrlKey)) {
 
             for (i = this.layout.length; i > 0; i--)  {
-                if (distBetweenPoints(this.layout[i-1].x, this.layout[i-1].y, msEvt.offsetX - 60, msEvt.offsetY - 35) < 60) {
+                if (distBetweenPoints(this.layout[i-1].x, this.layout[i-1].y, msEvt.offsetX - 60, msEvt.offsetY - 35) < 45) {
                     cutter.push(i-1);
                 }
             }
 
             if (cutter.length > 0 && msEvt.altKey) {
+                // in theory, return the card to the deck
+                for (i=0;i< this.cards.length; i++) {
+                    if (this.cards[i].name == this.layout[cutter[0]].name) this.cards[i].dealt = false;
+                }
+
                 // remover the selected card from the layout
                 this.layout.splice(cutter[0], 1);
             }
 
         }
 
-        if (this.layout.length < this.dealt.length && !msEvt.altKey) {
+        if (this.layout.length < this.cards.length && !msEvt.altKey) {
             this.layout.push(this.deal());
-        
-        
+
             if (msEvt.shiftKey) {
                 this.layout[this.layout.length - 1].rotated = true;
-                this.layout[this.layout.length - 1].x = msEvt.offsetX - 60;
-                this.layout[this.layout.length - 1].y = msEvt.offsetY - 35;
             }
             else {
-                this.layout[this.layout.length - 1].rotated = false;
-                this.layout[this.layout.length - 1].x = msEvt.offsetX - 35;
-                this.layout[this.layout.length - 1].y = msEvt.offsetY - 60;
+                this.layout[this.layout.length - 1].rotated = false;    
             }
+
+            this.layout[this.layout.length - 1].x = msEvt.offsetX - 35;
+            this.layout[this.layout.length - 1].y = msEvt.offsetY - 60;
         }
     },
 
     placeTap: function(e) {
         let tcEvt = e;
-        
-        if (this.layout.length < this.dealt.length) {
-            this.layout.push(this.deal());
+
+        for (i = this.layout.length; i > 0; i--)  {
+            if (distBetweenPoints(this.layout[i-1].x, this.layout[i-1].y, msEvt.offsetX - 60, msEvt.offsetY - 35) < 60) {
+                cutter.push(i-1);
+            }
         }
-        
-        if (tcEvt.touches.length > 1) {
-            this.layout[this.layout.length - 1].rotated = true;
-            this.layout[this.layout.length - 1].x = tcEvt.offsetX - 60;
-            this.layout[this.layout.length - 1].y = tcEvt.offsetY - 35;
+
+        if (cutter.length > 0) {
+            // in theory, return the card to the deck
+            for (i=0;i< this.cards.length; i++) {
+                if (this.cards[i].name == this.layout[cutter[0]].name) this.cards[i].dealt = false;
+            }
+
+            // remover the selected card from the layout
+            this.layout.splice(cutter[0], 1);
         }
         else {
-            this.layout[this.layout.length - 1].rotated = false;
-            this.layout[this.layout.length - 1].x = tcEvt.offsetX - 35;
-            this.layout[this.layout.length - 1].y = tcEvt.offsetY - 60;
-        }
+            if (this.layout.length < this.cards.length) {
+                this.layout.push(this.deal());
+            }
         
+            if (tcEvt.touches.length > 1) {
+                this.layout[this.layout.length - 1].rotated = true;
+                
+            }
+            else {
+                this.layout[this.layout.length - 1].rotated = false;
+            }
+            
+            this.layout[this.layout.length - 1].x = tcEvt.offsetX - 60;
+            this.layout[this.layout.length - 1].y = tcEvt.offsetY - 35;
+        }    
     },
 
     drawLayout: function(ctx) {
